@@ -2,11 +2,16 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from apps.forAUTH.models import User
 from apps.forAUTH.serializers import ChangePasswordSerializer
 from apps.forAUTH.serializers import ResetPasswordSerializer
-from apps.forAUTH.serializers.serializers import UserRegisterSerializer, UserSerializer
+from apps.forAUTH.serializers.serializers import UserRegisterSerializer, UserSerializer, CustomTokenObtainPairSerializer
+
+
+class LoginAPIView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class ChangePasswordView(generics.UpdateAPIView):

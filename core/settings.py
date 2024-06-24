@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "drf_spectacular_sidecar",
     'rest_framework_simplejwt',
+    "corsheaders",
 
     # local apps
     "apps.forAUTH",
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -63,7 +65,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "core.urls"
 
@@ -157,6 +159,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [str(BASE_DIR.joinpath("static"))]
 STATIC_ROOT = str(BASE_DIR.joinpath("staticfiles"))
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = str(BASE_DIR.joinpath("media"))

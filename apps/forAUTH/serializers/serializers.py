@@ -1,3 +1,5 @@
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 from apps.forAUTH.models import User
 
 from django.contrib.auth.password_validation import validate_password
@@ -19,46 +21,68 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 # -------------------------------------------------------------- ( 2 )
 
+
 class UserRegisterSerializer(serializers.ModelSerializer):
+    password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
         fields = [
+            'fullname',
             "phone",
-            "password",
+            'username',
+            "password1",
             "password2",
-            "avatar",
-            "first_name",
-            "last_name",
         ]
         extra_kwargs = {
+            'fullname': {'write_only': True},
             "phone": {"write_only": True},
-            "password": {"write_only": True},
-            "first_name": {"required": True},
-            "last_name": {"required": True},
-            "avatar": {"required": False},
+            "username": {"required": True},
         }
 
     def validate(self, attrs):
-        if attrs["password"] != attrs["password2"]:
+        password1 = attrs.pop('password1')
+        password2 = attrs.pop('password2')
+
+        if password1 != password2:
             raise serializers.ValidationError({"password": "Passwords must match."})
-        phone = User.objects.filter(phone=attrs["phone"])
-        if phone.exists():
-            raise serializers.ValidationError(
-                {"phone": "User with this phone already exists."}
-            )
-        email = User.objects.filter(email=attrs["email"])
-        if email.exists():
-            raise serializers.ValidationError(
-                {"email": "User with this email already exists."}
-            )
-        username = User.objects.filter(username=attrs.get("username"))
-        if username.exists():
-            raise serializers.ValidationError(
-                {"username": "User with this username already exists."}
-            )
+
+        if len(password1) <= 3:
+            raise serializers.ValidationError({"password": "Password must be longer than 3 characters."})
+
+        if User.objects.filter(phone=attrs["phone"]).exists():
+            raise serializers.ValidationError({"phone": "User with this phone already exists."})
+
+        if User.objects.filter(username=attrs.get("username")).exists():
+            raise serializers.ValidationError({"username": "User with this username already exists."})
+
+        attrs.update({'password': password1})
         return attrs
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        user = User(**validated_data)
+
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if password:
+            instance.set_password(password)
+
+        instance.save()
+        return instance
 
 
 # -------------------------------------------------------------- ( 3 )
@@ -86,3 +110,15 @@ class UserSerializer(serializers.ModelSerializer):
             "phone",
             "avatar",
         ]
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['username'] = user.username
+        # Add other custom claims if needed
+
+        return token

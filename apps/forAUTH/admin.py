@@ -7,10 +7,10 @@ from apps.forAUTH.models import User
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ["id", "phone", "first_name", "last_name"]
-    search_fields = ["phone", "first_name", "last_name"]
+    list_display = ["username", "fullname", "phone"]
+    search_fields = ["username", "fullname", "phone"]
     fieldsets = (
-        (None, {"fields": ("phone", "password")}),
+        (None, {"fields": ("fullname", "phone", "username", "password")}),
         (
             "Personal info",
             {
@@ -41,7 +41,7 @@ class CustomUserAdmin(UserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("phone", "password1", "password2"),
+                "fields": ("fullname", "username", "phone", "password1", "password2"),
             },
         ),
     )

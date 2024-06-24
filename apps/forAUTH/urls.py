@@ -10,11 +10,11 @@ from apps.forAUTH.views import (
     UserLogoutView,
     UserRegisterView,
     ChangePasswordView,
-    ResetPasswordView,
+    ResetPasswordView, LoginAPIView,
 )
 
 urlpatterns = [
-    path("api/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/login/", LoginAPIView.as_view(), name="login"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("register/", UserRegisterView.as_view(), name="register"),
